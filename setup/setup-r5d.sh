@@ -1,5 +1,7 @@
-export GIT_REPO="https://github.com/arapat/sparrow.git"
-export GIT_BRANCH="master"
+export SPARROW_REPO="https://github.com/arapat/sparrow.git"
+export SPARROW_BRANCH="master"
+export TMSN_REPO="https://github.com/arapat/tmsn.git"
+export TMSN_BRANCH="master"
 export DISK="/dev/nvme0n1"
 
 sudo umount /mnt
@@ -16,8 +18,15 @@ git config --global user.email "jalafate@gmail.com"
 git config --global push.default simple
 
 cd /mnt
-git clone $GIT_REPO sparrow
-git checkout $GIT_BRANCH
+curl https://sh.rustup.rs -sSf > rustup.sh
+bash rustup.sh -y
+source $HOME/.cargo/env
+git clone $SPARROW_REPO sparrow
+git checkout $SPARROW_BRANCH
+git clone $TMSN_REPO tmsn
+git checkout $TMSN_BRANCH
+cd sparrow
+cargo build --release > /dev/null 2> /dev/null &
 if [[ -z "${AWS_ACCESS_KEY_ID}" ]]; then
     echo "Data files are not downloaded because AWS credentials are not set."
 else
