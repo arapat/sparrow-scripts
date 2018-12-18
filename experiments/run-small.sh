@@ -26,17 +26,23 @@ fi
 echo
 echo "Training the model. Logs are being written to $LOG_FILE."
 $RUN_SPARROW train $TRAINING_CONFIG_FILE 2> $LOG_FILE
+echo "Done!"
+echo
 
 mkdir -p models
-for filename in $( ls -rt models/model-v* ); do
+for filename in $( ls -rt model-v* ); do
     echo models/$filename >> models_table.txt
 done
 mv model-v*.json models
 
+echo "Evaluating the models on the testing data..."
 $RUN_SPARROW test $TESTING_CONFIG_FILE 2> $PREDICTION_LOG
 
+echo "Computing the performance scores..."
 POSITIVE="1"
 for score_file in $( ls -rt models/model-v*_scores ); do
     echo $score_file, $($RUN_METRICS --test $TEST_DATA --scores $score_file --positive $POSITIVE) >> $PERFORMANCE_FILE
 done
+echo "All done."
+
 
