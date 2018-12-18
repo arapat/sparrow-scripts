@@ -9,40 +9,50 @@ TESTING_CONFIG_FILE="./sparrow/examples/config_testing_small_bal_bathymetry.yaml
 LOG_FILE="./bal_bathymetry_small.log"
 PREDICTION_LOG="./scores.log"
 
+if [[ ! -d sparrow ]]; then
+    echo "./sparrow does not exist. Terminated."
+    exit
+fi
+if [[ ! -d sparrow ]]; then
+    echo "./sparrow does not exist. Terminated."
+    exit
+fi
 
-echo "Listing the files and folders in current path:"
-echo "------------------------------------------------------------"
-ls
-echo "------------------------------------------------------------"
-echo
-echo "There should be three folders listed: ./sparrow, ./metricslib, and ./data"
 echo "Should I proceed? (y/n)"
 read proceed
-
 if [ "$proceed" != "y" ]; then
     echo "Terminated."
+    exit
 fi
 
 echo
 echo "Training the model. Logs are being written to $LOG_FILE."
-$RUN_SPARROW train $TRAINING_CONFIG_FILE 2> $LOG_FILE
-echo "Done!"
-echo
+if [[ -d models ]]; then
+    echo "./models exists. Should I remove it? (y/n)"
+    read proceed
+    if [ "$proceed" = "y" ]; then
+        rm -rf ./models
+        echo "./models Removed."
+    fi
+fi
 
 mkdir -p models
-for filename in $( ls -rt model-v* ); do
-    echo models/$filename >> models_table.txt
+$RUN_SPARROW train $TRAINING_CONFIG_FILE 2> $LOG_FILE
+echo "Training done!"
+echo
+
+if [ -f ./models_table.txt ]; then
+    rm models_table.txt
+fi
+for filename in $( ls -rt models/model_*-v*.json ); do
+    echo $filename >> models_table.txt
 done
-mv model-v*.json models
 
 echo "Evaluating the models on the testing data..."
-$RUN_SPARROW test $TESTING_CONFIG_FILE 2> $PREDICTION_LOG
+if ! $RUN_SPARROW test $TESTING_CONFIG_FILE 2> $PREDICTION_LOG; then
+    echo "Evaluation failed."
+    exit
+fi
 
-echo "Computing the performance scores..."
-POSITIVE="1"
-for score_file in $( ls -rt models/model-v*_scores ); do
-    echo $score_file, $($RUN_METRICS --test $TEST_DATA --scores $score_file --positive $POSITIVE) >> $PERFORMANCE_FILE
-done
 echo "All done."
-
 
