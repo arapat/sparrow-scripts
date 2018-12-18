@@ -2,6 +2,7 @@ import sys
 from os import listdir
 from os.path import join
 
+# TODO: ignore nan in the libsvm format
 dirname = sys.argv[1]
 for filename in listdir(dirname):
     if not filename.endswith(".tsv"):
