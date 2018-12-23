@@ -1,7 +1,9 @@
 export SPARROW_REPO="https://github.com/arapat/sparrow.git"
 export SPARROW_BRANCH="master"
+export S3_BUCKET="tmsn-data"
 export TMSN_REPO="https://github.com/arapat/tmsn.git"
 export TMSN_BRANCH="master"
+export METRICS_REPO="https://github.com/arapat/metricslib.git"
 export DISK="/dev/nvme0n1"
 
 sudo umount /mnt
@@ -22,6 +24,7 @@ curl https://sh.rustup.rs -sSf > rustup.sh
 bash rustup.sh -y
 git clone $SPARROW_REPO sparrow
 git clone $TMSN_REPO tmsn
+git clone $METRICS_REPO
 cd tmsn
 git checkout $TMSN_BRANCH
 cd /mnt/sparrow
@@ -29,9 +32,10 @@ git checkout $SPARROW_BRANCH
 source ~/.cargo/env
 cargo build --release > /dev/null 2> /dev/null &
 cd /mnt
-if [[ -z "${AWS_ACCESS_KEY_ID}" ]]; then
-    echo "Data files are not downloaded because AWS credentials are not set."
+aws s3 ls s3://$S3_BUCKET/ > /dev/null
+if [ $? -eq 0 ]; then
+    aws s3 cp s3://$S3_BUCKET/splice/training/training.libsvm .
+    aws s3 cp s3://$S3_BUCKET/splice/testing/testing.libsvm .
 else
-    aws s3 cp s3://tmsn-data/splice/training/training-shuffled.libsvm .
-    aws s3 cp s3://tmsn-data/splice/testing/testing-correct.libsvm .
+    echo "Data files are not downloaded because AWS credentials are not set correctly."
 fi
