@@ -1,3 +1,6 @@
 .vscode
 .DS_Store
 archive/
+*.libsvm
+*.libsvm_bin
+.ipynb_checkpoints

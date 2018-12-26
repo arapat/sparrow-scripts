@@ -1,8 +1,14 @@
+# Incldue XGBoost in $PYTHONPATH:
+# ```
+#     export PYTHONPATH=~/xgboost/python-package
+# ```
+
 import sys
 import pickle
 import yaml
 import numpy as np
 import xgboost as xgb
+from datetime import datetime as dt
 from time import time
 from os.path import expanduser
 from sklearn.metrics import auc
@@ -11,7 +17,7 @@ from sklearn.metrics import precision_recall_curve
 
 ON_DISK = False
 THREAD = 8
-ROUND = 250
+ROUND = 1184
 
 with open(sys.argv[1]) as f:
     config = yaml.load(f.read())
@@ -25,7 +31,8 @@ t0 = time()
 def logger(s, show_time=False):
     if show_time:
         print("Current time: %.2f" % time())
-    print("[%.5f] %s" % (time() - t0, s))
+    ts = dt.now().strftime("%H:%M:%S")
+    print("[%s] %s" % (ts, s))
     sys.stdout.flush()
 
 
@@ -52,23 +59,20 @@ def run_xgb():
         xgmat = xgb.DMatrix(trainingpath + "#dtrain.cache")
     else:
         logger('now loading in libsvm in memory')
-        print(trainingpath)
         xgmat = xgb.DMatrix(trainingpath)
     logger('finish loading from libsvm')
 
     # setup parameters for xgboost
     param = {}
-    # use logistic regression loss
-    param['objective'] = 'binary:logitraw'
     # scale weight of positive examples
     param['scale_pos_weight'] = sum_wneg/sum_wpos
     # param['eta'] = 0.1
-    param['max_depth'] = 2
+    param['max_depth'] = 1
     param['eval_metric'] = 'auc'
     # param['silent'] = 1
     param['nthread'] = 4
     # Optimize
-    param['max_bin'] = 128
+    param['max_bin'] = 2
     param['tree_method'] = 'approx'
 
     watchlist = ()
@@ -135,3 +139,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
