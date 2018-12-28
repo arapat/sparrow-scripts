@@ -1,5 +1,5 @@
+#!/usr/bin/env python
 # coding: utf-8
-# pylint: disable = invalid-name, C0111
 import sys
 import pickle
 import yaml
@@ -9,13 +9,15 @@ from sklearn.metrics import auc
 from sklearn.metrics import precision_recall_curve
 from time import time
 
-ON_DISK = True
-ROUND = 600
-
+if len(sys.argv) != 3:
+    print("Wrong parameters. Usage: ./xgb.py <config-file> <num_trees>")
+    sys.exit()
 with open(sys.argv[1]) as f:
     config = yaml.load(f.read())
 trainingpath = config["training_filename"]
 testingpath = config["testing_filename"]
+num_leaves = config["max_leaves"]
+rounds = int(sys.argv[2])
 
 
 # for performance
@@ -65,18 +67,18 @@ def train_lgb():
     params = {
         'boosting_type': 'goss',
         'max_bin': 256,
-        'num_leaves': 4,
+        'num_leaves': num_leaves,
         'learning_rate': 0.1,
         'tree_learner': 'serial',
         'task': 'train',
         'num_thread': 8,
         'min_data_in_leaf': 1,
-        'two_round': str(ON_DISK).lower(),
+        'two_round': "false",
         'scale_pos_weight': sum_wneg / sum_wpos
     }
 
     logger('Start training...')
-    gbm = lgb.train(params, train_data, num_boost_round=ROUND, fobj=expobj, callbacks=[print_ts()])
+    gbm = lgb.train(params, train_data, num_boost_round=rounds, fobj=expobj, callbacks=[print_ts()])
     logger('Training completed.')
 
     # save model to file
@@ -98,7 +100,7 @@ def validate():
         pkl_bst = pickle.load(fin)
 
     # can predict with any iteration when loaded in pickle way
-    for i in range(ROUND):
+    for i in range(rounds):
         preds = pkl_bst.predict(testing_path, num_iteration=(i + 1))
         logger('finished prediction')
 
