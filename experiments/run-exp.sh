@@ -1,10 +1,15 @@
 RUN_SPARROW="./sparrow/target/release/sparrow"
 RUN_METRICS="./metricslib/target/release/run_metrics"
 
-TRAINING_CONFIG_FILE="./sparrow/examples/config_splice.yaml"
-TESTING_CONFIG_FILE="./sparrow/examples/config_testing_splice.yaml"
-LOG_FILE="./splice.log"
-PREDICTION_LOG="./scores.log"
+LOG_FILE="./training.log"
+PREDICTION_LOG="./testing.log"
+
+if [ "$#" -ne 2 ]; then
+    echo "Wrong paramters. Usage: ./run-exp.sh <training-config-file> <testing-config-file>"
+    exit
+fi
+TRAINING_CONFIG_FILE="$1"
+TESTING_CONFIG_FILE="$2"
 
 if [[ ! -f $RUN_SPARROW ]]; then
     echo "sparrow does not exist. Terminated."
@@ -15,14 +20,6 @@ if [[ ! -f $RUN_METRICS ]]; then
     exit
 fi
 
-echo "Should I proceed? (y/n)"
-read proceed
-if [ "$proceed" != "y" ]; then
-    echo "Terminated."
-    exit
-fi
-
-echo
 echo "Should I run training? (y/n)"
 read proceed
 if [ "$proceed" != "y" ]; then
@@ -54,6 +51,7 @@ done
 echo "Evaluating the models on the testing data..."
 if ! $RUN_SPARROW test $TESTING_CONFIG_FILE 2> $PREDICTION_LOG; then
     echo "Evaluation failed."
+    cat $PREDICTION_LOG
     exit
 fi
 

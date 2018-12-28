@@ -1,6 +1,8 @@
+#!/usr/bin/env python
+
 # Incldue XGBoost in $PYTHONPATH:
 # ```
-#     export PYTHONPATH=~/xgboost/python-package
+#     export PYTHONPATH=~/xgboost/python-package:$PYTHONPATH
 # ```
 
 import sys
@@ -13,16 +15,21 @@ from time import time
 from os.path import expanduser
 from sklearn.metrics import auc
 from sklearn.metrics import precision_recall_curve
+from sklearn.metrics import roc_curve
 
 
-ON_DISK = False
 THREAD = 8
-ROUND = 1184
 
+if len(sys.argv) != 5:
+    print("Wrong parameters. Usage: ./xgb.py <config-file> <disk|mem> <max_depth> <num_trees>")
+    sys.exit()
 with open(sys.argv[1]) as f:
     config = yaml.load(f.read())
 trainingpath = config["training_filename"]
 testingpath = config["testing_filename"]
+on_disk = sys.argv[2].lower() == "disk"
+max_depth = int(sys.argv[3])
+rounds = int(sys.argv[4])
 
 # for performance
 t0 = time()
@@ -54,7 +61,7 @@ def run_xgb():
     logger('weight statistics: wpos=%g, wneg=%g, ratio=%g' % (sum_wpos, sum_wneg, sum_wpos / sum_wneg))
 
     # construct xgboost.DMatrix from numpy array
-    if ON_DISK:
+    if on_disk:
         logger('now loading in libsvm on disk')
         xgmat = xgb.DMatrix(trainingpath + "#dtrain.cache")
     else:
@@ -67,7 +74,7 @@ def run_xgb():
     # scale weight of positive examples
     param['scale_pos_weight'] = sum_wneg/sum_wpos
     # param['eta'] = 0.1
-    param['max_depth'] = 1
+    param['max_depth'] = max_depth
     param['eval_metric'] = 'auc'
     # param['silent'] = 1
     param['nthread'] = 4
@@ -82,10 +89,10 @@ def run_xgb():
     param['nthread'] = THREAD
     ts = time()
     plst = param.items()
-    bst = xgb.train(plst, xgmat, ROUND, watchlist, obj=expobj)
+    bst = xgb.train(plst, xgmat, rounds, watchlist, obj=expobj)
     duration = time() - ts
-    logger("XGBoost %d rounds with %d thread costs: %.2f seconds" % (ROUND, THREAD, duration))
-    bst.save_model("xgb-r%d-t%d.bin" % (ROUND, THREAD))
+    logger("XGBoost %d rounds with %d thread costs: %.2f seconds" % (rounds, THREAD, duration))
+    bst.save_model("xgb-r%d-t%d.bin" % (rounds, THREAD))
 
     logger('quit running xgb')
 
@@ -93,8 +100,8 @@ def run_xgb():
 def validate():
     # construct xgboost.DMatrix from numpy array
     bst = xgb.Booster({'nthread': 4})  # init model
-    bst.load_model('xgb-r%d-t%d.bin' % (ROUND, THREAD))  # load data
-    if ON_DISK:
+    bst.load_model('xgb-r%d-t%d.bin' % (rounds, THREAD))  # load data
+    if on_disk:
         logger('now loading in testing libsvm on disk')
         dtest = xgb.DMatrix(testingpath + "#dtest.cache")
     else:
@@ -110,7 +117,7 @@ def validate():
             true.append(int(line.split(' ', 1)[0]))
     true = np.array(true)
     true = (true > 0) * 2 - 1
-    for i in range(ROUND):
+    for i in range(rounds):
         preds = bst.predict(dtest, ntree_limit=(i + 1))
         logger('finished prediction')
 
@@ -120,7 +127,9 @@ def validate():
         precision, recall, _ = precision_recall_curve(true, scores, pos_label=1)
         precision[-1] = np.sum(true > 0) / true.size
         auprc = auc(recall, precision)
-        logger("eval, {}, {}, {}".format(i + 1, loss, auprc))
+        fpr, tpr, _ = roc_curve(true, scores, pos_label=1)
+        auroc = auc(fpr, tpr)
+        logger("eval, {}, {}, {}".format(i + 1, loss, auprc, auroc))
 
 
 def expobj(preds, dtrain):
