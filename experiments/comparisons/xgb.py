@@ -125,11 +125,11 @@ def validate():
         scores = preds
         loss = np.mean(np.exp(-true * scores))
         precision, recall, _ = precision_recall_curve(true, scores, pos_label=1)
-        precision[-1] = np.sum(true > 0) / true.size
+        # precision[-1] = np.sum(true > 0) / true.size  -- WHY?
         auprc = auc(recall, precision)
         fpr, tpr, _ = roc_curve(true, scores, pos_label=1)
         auroc = auc(fpr, tpr)
-        logger("eval, {}, {}, {}".format(i + 1, loss, auprc, auroc))
+        logger("eval, {}, {}, {}, {}".format(i + 1, loss, auprc, auroc))
 
 
 def expobj(preds, dtrain):

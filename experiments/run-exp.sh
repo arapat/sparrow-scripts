@@ -4,12 +4,11 @@ RUN_METRICS="./metricslib/target/release/run_metrics"
 LOG_FILE="./training.log"
 PREDICTION_LOG="./testing.log"
 
-if [ "$#" -ne 2 ]; then
-    echo "Wrong paramters. Usage: ./run-exp.sh <training-config-file> <testing-config-file>"
+if [ "$#" -ne 1 ]; then
+    echo "Wrong paramters. Usage: ./run-exp.sh <training-config-file>"
     exit
 fi
-TRAINING_CONFIG_FILE="$1"
-TESTING_CONFIG_FILE="$2"
+CONFIG_FILE="$1"
 
 if [[ ! -f $RUN_SPARROW ]]; then
     echo "sparrow does not exist. Terminated."
@@ -25,7 +24,6 @@ read proceed
 if [ "$proceed" != "y" ]; then
     echo "Training is skipped."
 else
-    echo "Training the model. Logs are being written to $LOG_FILE."
     if [[ -d models ]]; then
         echo "./models exists. Should I remove it? (y/n)"
         read proceed
@@ -36,7 +34,8 @@ else
     fi
 
     mkdir -p models
-    $RUN_SPARROW train $TRAINING_CONFIG_FILE 2> $LOG_FILE
+    echo "Training the model. Logs are being written to $LOG_FILE."
+    $RUN_SPARROW train $CONFIG_FILE 2> $LOG_FILE
     echo "Training done!"
 fi
 echo
@@ -49,7 +48,7 @@ for filename in $( ls -rt models/model_*-v*.json ); do
 done
 
 echo "Evaluating the models on the testing data..."
-if ! $RUN_SPARROW test $TESTING_CONFIG_FILE 2> $PREDICTION_LOG; then
+if ! $RUN_SPARROW test $CONFIG_FILE 2> $PREDICTION_LOG; then
     echo "Evaluation failed."
     cat $PREDICTION_LOG
     exit
