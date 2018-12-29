@@ -38,9 +38,13 @@ t0 = time()
 def logger(s, show_time=False):
     if show_time:
         print("Current time: %.2f" % time())
-    ts = dt.now().strftime("%H:%M:%S")
-    print("[%s] %s" % (ts, s))
+    ts = time() - t0
+    print("%s,%s" % (ts, s))
     sys.stdout.flush()
+
+
+def log_time(t):
+    logger("new tree,%d" % t.iteration)
 
 
 def compute_ratio():
@@ -90,7 +94,7 @@ def run_xgb():
     param['nthread'] = THREAD
     ts = time()
     plst = param.items()
-    bst = xgb.train(plst, xgmat, rounds, watchlist, obj=expobj)
+    bst = xgb.train(plst, xgmat, rounds, watchlist, obj=expobj, callbacks=[log_time])
     duration = time() - ts
     logger("XGBoost %d rounds with %d thread costs: %.2f seconds" % (rounds, THREAD, duration))
     bst.save_model("xgb-r%d-t%d.model" % (rounds, THREAD))
