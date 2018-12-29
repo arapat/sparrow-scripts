@@ -81,6 +81,7 @@ def run_xgb():
     # Optimize
     param['max_bin'] = 2
     param['tree_method'] = 'approx'
+    param['lambda'] = 0.0
 
     watchlist = ()
     logger('loading data end, start to boost trees')
@@ -92,7 +93,7 @@ def run_xgb():
     bst = xgb.train(plst, xgmat, rounds, watchlist, obj=expobj)
     duration = time() - ts
     logger("XGBoost %d rounds with %d thread costs: %.2f seconds" % (rounds, THREAD, duration))
-    bst.save_model("xgb-r%d-t%d.bin" % (rounds, THREAD))
+    bst.save_model("xgb-r%d-t%d.model" % (rounds, THREAD))
 
     logger('quit running xgb')
 
@@ -100,7 +101,7 @@ def run_xgb():
 def validate():
     # construct xgboost.DMatrix from numpy array
     bst = xgb.Booster({'nthread': 4})  # init model
-    bst.load_model('xgb-r%d-t%d.bin' % (rounds, THREAD))  # load data
+    bst.load_model('xgb-r%d-t%d.model' % (rounds, THREAD))  # load data
     if on_disk:
         logger('now loading in testing libsvm on disk')
         dtest = xgb.DMatrix(testingpath + "#dtest.cache")
