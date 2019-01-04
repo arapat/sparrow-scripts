@@ -34,8 +34,9 @@ cargo build --release > /dev/null 2> /dev/null &
 cd /mnt
 aws s3 ls s3://$S3_BUCKET/ > /dev/null
 if [ $? -eq 0 ]; then
-    aws s3 cp s3://$S3_BUCKET/splice/training/training.libsvm .
-    aws s3 cp s3://$S3_BUCKET/splice/testing/testing.libsvm .
+    echo "AWS was set up correctly."
 else
-    echo "Data files are not downloaded because AWS credentials are not set correctly."
+    echo "AWS needs to be set up."
+    aws configure
 fi
+
