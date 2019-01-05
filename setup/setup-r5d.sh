@@ -31,6 +31,8 @@ cd /mnt/sparrow
 git checkout $SPARROW_BRANCH
 source ~/.cargo/env
 cargo build --release > /dev/null 2> /dev/null &
+cd /mnt/metricslib
+cargo build --release > /dev/null 2> /dev/null &
 cd /mnt
 aws s3 ls s3://$S3_BUCKET/ > /dev/null
 if [ $? -eq 0 ]; then
@@ -39,4 +41,6 @@ else
     echo "AWS needs to be set up."
     aws configure
 fi
-
+echo "Waiting Rust compiler..."
+wait
+echo "All done."
