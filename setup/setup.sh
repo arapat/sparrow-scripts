@@ -4,7 +4,12 @@ export S3_BUCKET="tmsn-data"
 export TMSN_REPO="https://github.com/arapat/tmsn.git"
 export TMSN_BRANCH="master"
 export METRICS_REPO="https://github.com/arapat/metricslib.git"
-export DISK="/dev/nvme0n1"
+
+if [ "$#" -ne 1 ]; then
+    echo "Wrong paramters. Usage: ./setup.sh <ssd-device-path>"
+    exit
+fi
+export DISK=$1
 
 # Format disk
 sudo umount /mnt
