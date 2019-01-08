@@ -5,6 +5,7 @@
 #     export PYTHONPATH=~/xgboost/python-package:$PYTHONPATH
 # ```
 
+import multiprocessing
 import sys
 import pickle
 import yaml
@@ -18,18 +19,18 @@ from sklearn.metrics import precision_recall_curve
 from sklearn.metrics import roc_curve
 
 
-THREAD = 8
-
-if len(sys.argv) != 5:
-    print("Wrong parameters. Usage: ./xgb.py <config-file> <disk|mem> <max_depth> <num_trees>")
+if len(sys.argv) != 2:
+    print("Wrong parameters. Usage: ./xgb.py <config-file> <disk|mem>")
     sys.exit()
 with open(sys.argv[1]) as f:
     config = yaml.load(f.read())
+on_disk = sys.argv[2].lower() == "disk"
 trainingpath = config["training_filename"]
 testingpath = config["testing_filename"]
-on_disk = sys.argv[2].lower() == "disk"
-max_depth = int(sys.argv[3])
-rounds = int(sys.argv[4])
+thread = multiprocessing.cpu_count()
+max_leaves = float(config["max_leaves"])
+max_depth = math.ceil(math.log2(max_leaves))
+rounds = int(config["num_iterations"])
 
 # for performance
 t0 = time()
@@ -81,7 +82,7 @@ def run_xgb():
     param['max_depth'] = max_depth
     param['eval_metric'] = 'auc'
     # param['silent'] = 1
-    param['nthread'] = 4
+    param['nthread'] = thread
     # Optimize
     param['max_bin'] = 2
     param['tree_method'] = 'approx'
@@ -91,21 +92,20 @@ def run_xgb():
     logger('loading data end, start to boost trees')
 
     logger("training xgboost", True)
-    param['nthread'] = THREAD
     ts = time()
     plst = param.items()
     bst = xgb.train(plst, xgmat, rounds, watchlist, obj=expobj, callbacks=[log_time])
     duration = time() - ts
-    logger("XGBoost %d rounds with %d thread costs: %.2f seconds" % (rounds, THREAD, duration))
-    bst.save_model("xgb-r%d-t%d.model" % (rounds, THREAD))
+    logger("XGBoost %d rounds with %d thread costs: %.2f seconds" % (rounds, thread, duration))
+    bst.save_model("xgb-r%d-t%d.model" % (rounds, thread))
 
     logger('quit running xgb')
 
 
 def validate():
     # construct xgboost.DMatrix from numpy array
-    bst = xgb.Booster({'nthread': 4})  # init model
-    bst.load_model('xgb-r%d-t%d.model' % (rounds, THREAD))  # load data
+    bst = xgb.Booster({'nthread': thread})  # init model
+    bst.load_model('xgb-r%d-t%d.model' % (rounds, thread))  # load data
     if on_disk:
         logger('now loading in testing libsvm on disk')
         dtest = xgb.DMatrix(testingpath + "#dtest.cache")
