@@ -1,10 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Incldue XGBoost in $PYTHONPATH:
 # ```
 #     export PYTHONPATH=~/xgboost/python-package:$PYTHONPATH
 # ```
 
+import math
 import multiprocessing
 import sys
 import pickle
@@ -19,7 +20,7 @@ from sklearn.metrics import precision_recall_curve
 from sklearn.metrics import roc_curve
 
 
-if len(sys.argv) != 2:
+if len(sys.argv) != 3:
     print("Wrong parameters. Usage: ./xgb.py <config-file> <disk|mem>")
     sys.exit()
 with open(sys.argv[1]) as f:
