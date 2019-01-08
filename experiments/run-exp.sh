@@ -4,6 +4,8 @@ RUN_METRICS="./metricslib/target/release/run_metrics"
 LOG_FILE="./training.log"
 PREDICTION_LOG="./testing.log"
 
+export RUST_LOG=DEBUG
+
 if [ "$#" -ne 1 ]; then
     echo "Wrong paramters. Usage: ./run-exp.sh <training-config-file>"
     exit
