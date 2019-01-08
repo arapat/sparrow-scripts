@@ -4,6 +4,7 @@ export S3_BUCKET="tmsn-data"
 export TMSN_REPO="https://github.com/arapat/tmsn.git"
 export TMSN_BRANCH="master"
 export METRICS_REPO="https://github.com/arapat/metricslib.git"
+export SCRIPTS_REPO="https://github.com/arapat/sparrow-scripts.git"
 
 if [ "$#" -ne 2 ]; then
     echo "Wrong paramters. Usage: ./setup.sh <ssd-device-path> <dataset-name>"
@@ -50,6 +51,7 @@ bash rustup.sh -y
 git clone $SPARROW_REPO sparrow
 git clone $TMSN_REPO tmsn
 git clone $METRICS_REPO
+git clone $SCRIPTS_REPO
 
 # Compile Sparrow
 cd tmsn
