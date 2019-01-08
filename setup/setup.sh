@@ -32,26 +32,26 @@ yes | sudo mkfs.ext4 -L MY_DISK $DISK
 sudo mount LABEL=MY_DISK /mnt
 sudo chown -R ubuntu /mnt
 
-# Install packages
-sudo apt-get install -y gcc python3 python3-pip
-echo "export EDITOR=vim" >> ~/.bashrc
-
 # Set up git
 git config --global user.name "Julaiti Alafate"
 git config --global user.email "jalafate@gmail.com"
 git config --global push.default simple
 
-# Install Rust
-cd /mnt
-$SETUP_DIR/download-data.sh $2 > /dev/null 2> /dev/null &
-curl https://sh.rustup.rs -sSf > rustup.sh
-bash rustup.sh -y
-
 # Clone packages
+cd /mnt
 git clone $SPARROW_REPO sparrow
 git clone $TMSN_REPO tmsn
 git clone $METRICS_REPO
 git clone $SCRIPTS_REPO
+
+# Install packages
+sudo apt-get install -y gcc python3 python3-pip
+echo "export EDITOR=vim" >> ~/.bashrc
+
+# Install Rust
+$SETUP_DIR/download-data.sh $2 > /dev/null 2> /dev/null &
+curl https://sh.rustup.rs -sSf > rustup.sh
+bash rustup.sh -y
 
 # Compile Sparrow
 cd tmsn
