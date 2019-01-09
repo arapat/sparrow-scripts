@@ -29,9 +29,10 @@ on_disk = sys.argv[2].lower() == "disk"
 trainingpath = config["training_filename"]
 testingpath = config["testing_filename"]
 thread = multiprocessing.cpu_count()
-max_leaves = float(config["max_leaves"])
+max_leaves = int(config["max_leaves"])
 max_depth = math.ceil(math.log2(max_leaves))
 rounds = int(config["num_iterations"])
+max_bin = int(config["max_bin_size"])
 
 # for performance
 t0 = time()
@@ -77,17 +78,19 @@ def run_xgb():
 
     # setup parameters for xgboost
     param = {}
-    # scale weight of positive examples
     param['scale_pos_weight'] = sum_wneg/sum_wpos
-    # param['eta'] = 0.1
     param['max_depth'] = max_depth
     param['eval_metric'] = 'auc'
-    # param['silent'] = 1
     param['nthread'] = thread
-    # Optimize
-    param['max_bin'] = 2
-    param['tree_method'] = 'approx'
+    param['max_bin'] = max_bin
     param['lambda'] = 0.0
+    param['silent'] = False
+    param['verbosity'] = 3
+
+    param['tree_method'] = 'approx'
+    # param['tree_method'] = 'hist'
+    # param['grow_policy'] = 'lossguide'
+    # param['max_leaves'] = max_leaves
 
     watchlist = ()
     logger('loading data end, start to boost trees')
