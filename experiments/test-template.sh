@@ -11,7 +11,7 @@ if [ "$3" = "sparrow" ]; then
     ./sparrow-scripts/experiments/run-exp.sh $CONFIG
 else
 if [ "$3" = "xgb" ]; then
-    ./sparrow-scripts/experiments/comparisons/xgb.py $CONFIG $DISK_OR_MEM > xgboost.log
+    ./sparrow-scripts/experiments/comparisons/xgb.py $CONFIG $DISK_OR_MEM > xgboost.log 2> xgb-error.log
 else
     echo "Wrong package parameter. Exit."
     exit 1

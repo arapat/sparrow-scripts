@@ -142,11 +142,13 @@ def validate():
 
 
 def expobj(preds, dtrain):
-    labels = (dtrain.get_label() > 0) * 2 - 1  # Labels must be 1 or -1
-    margin = labels * preds
-    hess = np.exp(-margin)
-    grad = -labels * hess
-    return grad, hess
+    # Labels must be 1 or -1
+    labels = dtrain.get_label()
+    # margin = ((labels > 0) * 2 - 1).astype("float16") * preds
+    # hess = np.exp(-margin)
+    hess = -((labels > 0) * 2 - 1).astype("float16") * preds
+    # grad = -labels * hess
+    return -labels * hess, hess
 
 
 def main():
