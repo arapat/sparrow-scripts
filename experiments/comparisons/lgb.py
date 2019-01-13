@@ -1,24 +1,26 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # coding: utf-8
 import sys
 import pickle
 import yaml
 import lightgbm as lgb
+import multiprocessing
 import numpy as np
 from sklearn.metrics import auc
 from sklearn.metrics import precision_recall_curve
 from time import time
 
-if len(sys.argv) != 3:
-    print("Wrong parameters. Usage: ./xgb.py <config-file> <num_trees>")
+if len(sys.argv) != 2:
+    print("Wrong parameters. Usage: ./xgb.py <config-file>")
     sys.exit()
 with open(sys.argv[1]) as f:
     config = yaml.load(f.read())
 trainingpath = config["training_filename"]
 testingpath = config["testing_filename"]
 num_leaves = config["max_leaves"]
-rounds = int(sys.argv[2])
-
+rounds = int(config["num_iterations"])
+thread = multiprocessing.cpu_count()
+max_bin = int(config["max_bin_size"])
 
 # for performance
 t0 = time()
@@ -65,16 +67,18 @@ def train_lgb():
             else:
                 sum_wpos += 1.0
     params = {
-        'boosting_type': 'goss',
-        'max_bin': 256,
+        'objective': 'binary',
+        'boosting_type': 'goss',  # 'goss',
+        'max_bin': max_bin,
         'num_leaves': num_leaves,
-        'learning_rate': 0.1,
-        'tree_learner': 'serial',
+        'learning_rate': 0.3,
+        'tree_learner': 'voting',  # 'serial'
         'task': 'train',
-        'num_thread': 8,
-        'min_data_in_leaf': 1,
-        'two_round': "false",
-        'scale_pos_weight': sum_wneg / sum_wpos
+        'num_thread': thread,
+        'min_data_in_leaf': 5000,  # This is min bound for stopping rule in Sparrow
+        'two_round': False,
+        # 'is_unbalance': True,
+        'scale_pos_weight': sum_wneg / sum_wpos,
     }
 
     logger('Start training...')
@@ -114,11 +118,13 @@ def validate():
 
 
 def expobj(preds, dtrain):
-    labels = (dtrain.get_label() > 0) * 2 - 1  # Labels must be 1 or -1
-    margin = labels * preds
-    hess = np.exp(-margin)
-    grad = -labels * hess
-    return grad, hess
+    # Labels must be 1 or -1
+    labels = ((dtrain.get_label() > 0) * 2 - 1).astype("float16")
+    # margin = labels * preds
+    # hess = np.exp(-margin)
+    hess = np.exp(-labels * preds)
+    # grad = -labels * hess
+    return -labels * hess, hess
 
 
 def main():

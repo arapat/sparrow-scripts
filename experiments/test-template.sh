@@ -13,8 +13,12 @@ else
 if [ "$3" = "xgb" ]; then
     ./sparrow-scripts/experiments/comparisons/xgb.py $CONFIG $DISK_OR_MEM > xgboost.log 2> xgb-error.log
 else
+if [ "$3" = "lgb" ]; then
+    ./sparrow-scripts/experiments/comparisons/lgb.py $CONFIG > lightgbm.log 2> lgb-error.log
+else
     echo "Wrong package parameter. Exit."
     exit 1
+fi
 fi
 fi
 
