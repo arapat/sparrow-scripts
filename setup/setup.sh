@@ -12,6 +12,7 @@ if [ "$#" -ne 2 ]; then
 fi
 export DISK=$1
 SETUP_DIR="$(dirname "$0")"
+PY_REQ_FILE="$(realpath $SETUP_DIR/../python/requirements.txt)"
 
 # Install AWS CLI tools
 sudo apt-get update
@@ -64,7 +65,7 @@ cd /mnt/metricslib
 cargo build --release > /dev/null 2> /dev/null &
 
 # Install Python packages
-sudo pip3 install xgboost sklearn
+sudo pip3 install -r $PY_REQ_FILE
 
 # Wrap up
 echo "Waiting Rust compiler and data downloader..."

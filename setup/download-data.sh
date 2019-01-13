@@ -12,8 +12,16 @@ if [ "$1" = "bal-bath" ]; then
 DIR_NAME="bathymetry-JAMSTEC-balanced"
 else if [ "$1" = "bath" ]; then
 DIR_NAME="bathymetry-JAMSTEC"
+else if [ "$1" = "bath1g" ]; then
+DIR_NAME="bathymetry-JAMSTEC-1G"
+else if [ "$1" = "bath10g" ]; then
+DIR_NAME="bathymetry-JAMSTEC-10G"
+else if [ "$1" = "bath100g" ]; then
+DIR_NAME="bathymetry-JAMSTEC-100G"
 else if [ "$1" = "higgs" ]; then
 DIR_NAME="higgs"
+else if [ "$1" = "higgs1g" ]; then
+DIR_NAME="higgs-1g"
 else if [ "$1" = "splice" ]; then
 DIR_NAME="splice"
 else if [ "$1" = "small" ]; then
@@ -21,6 +29,9 @@ DIR_NAME="small"
 else
     echo "Wrong experiment parameter. Exit."
     exit 1
+fi
+fi
+fi
 fi
 fi
 fi
