@@ -132,7 +132,7 @@ def expobj(preds, dtrain):
 
 def main():
     logger("Program starts")
-    # train_lgb()
+    train_lgb()
     validate()
 
 
