@@ -8,6 +8,7 @@ import multiprocessing
 import numpy as np
 from sklearn.metrics import auc
 from sklearn.metrics import precision_recall_curve
+from sklearn.metrics import roc_curve
 from time import time
 
 if len(sys.argv) != 2:
@@ -112,9 +113,11 @@ def validate():
         scores = preds
         loss = np.mean(np.exp(-true * scores))
         precision, recall, _ = precision_recall_curve(true, scores, pos_label=1)
-        precision[-1] = np.sum(true > 0) / true.size
+        # precision[-1] = np.sum(true > 0) / true.size
         auprc = auc(recall, precision)
-        logger("eval, {}, {}, {}".format(i + 1, loss, auprc))
+        fpr, tpr, _ = roc_curve(true, scores, pos_label=1)
+        auroc = auc(fpr, tpr)
+        logger("eval, {}, {}, {}, {}".format(i + 1, loss, auprc, auroc))
 
 
 def expobj(preds, dtrain):
@@ -129,7 +132,7 @@ def expobj(preds, dtrain):
 
 def main():
     logger("Program starts")
-    train_lgb()
+    # train_lgb()
     validate()
 
 
