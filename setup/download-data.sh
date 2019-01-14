@@ -37,6 +37,7 @@ fi
 fi
 fi
 fi
+fi
 
 
 aws s3 cp s3://$S3_BUCKET/$DIR_NAME/ . --recursive
