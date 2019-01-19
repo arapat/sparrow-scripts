@@ -20,12 +20,12 @@ from sklearn.metrics import precision_recall_curve
 from sklearn.metrics import roc_curve
 
 
-if len(sys.argv) != 3:
-    print("Wrong parameters. Usage: ./xgb.py <config-file> <disk|mem>")
+if len(sys.argv) != 2:
+    print("Wrong parameters. Usage: ./xgb.py <config-file>")
     sys.exit()
 with open(sys.argv[1]) as f:
     config = yaml.load(f.read())
-on_disk = sys.argv[2].lower() == "disk"
+on_disk = True
 trainingpath = config["training_filename"]
 testingpath = config["testing_filename"]
 thread = multiprocessing.cpu_count()
