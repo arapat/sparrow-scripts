@@ -46,7 +46,7 @@ git clone $METRICS_REPO
 git clone $SCRIPTS_REPO
 
 # Install packages
-sudo apt-get install -y gcc python3 python3-pip
+sudo apt-get install -y gcc python3 python3-pip pkg-config libssl-dev
 echo "export EDITOR=vim" >> ~/.bashrc
 
 # Install Rust
