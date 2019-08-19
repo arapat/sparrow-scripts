@@ -1,5 +1,5 @@
 export SPARROW_REPO="https://github.com/arapat/sparrow.git"
-export SPARROW_BRANCH="ad-ded-dec-gamma"
+export SPARROW_BRANCH="tmsn"
 export S3_BUCKET="tmsn-data"
 export TMSN_REPO="https://github.com/arapat/tmsn.git"
 export TMSN_BRANCH="master"
