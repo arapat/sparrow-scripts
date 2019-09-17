@@ -23,6 +23,9 @@ fi
 fi
 fi
 
+CONFIG="./sparrow/examples/config_synthetic.yaml"
+NUM_TREES=16
+
 
 if [ "$2" = "sparrow" ]; then
     ./sparrow-scripts/experiments/run-exp.sh $CONFIG

@@ -1,3 +1,4 @@
+export RUST_BACKTRACE=1
 RUN_SPARROW="./sparrow/target/release/sparrow"
 RUN_METRICS="./metricslib/target/release/run_metrics"
 
@@ -43,11 +44,19 @@ else
 fi
 echo
 
-rm -f all_models_table.txt models_table.txt
+if [ -f ./models_table.txt ]; then
+    echo "./models_table.txt exists. Should I remove it? (y/n)"
+    read proceed
+    if [ "$proceed" = "y" ]; then
+        rm -f all_models_table.txt models_table.txt
+        echo "./models_table.txt Removed."
+    fi
+fi
 for filename in $( ls -rt models/model_*-v*.json ); do
     echo $filename >> all_models_table.txt
 done
 awk 'NR == 1 || NR % 20 == 0' all_models_table.txt > models_table.txt
+
 
 echo "Evaluating the models on the testing data..."
 if ! $RUN_SPARROW test $CONFIG_FILE 2> $PREDICTION_LOG; then
