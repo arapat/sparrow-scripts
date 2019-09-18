@@ -6,13 +6,12 @@ export TMSN_BRANCH="master"
 export METRICS_REPO="https://github.com/arapat/metricslib.git"
 export SCRIPTS_REPO="https://github.com/arapat/sparrow-scripts.git"
 
-if [ "$#" -ne 1 ]; then
-    echo "Wrong paramters. Usage: ./setup.sh <dataset-name> <AWS_ACCESS_KEY_ID> \
-          <AWS_SECRET_ACCESS_KEY>"
+if [ "$#" -ne 3 ]; then
+    echo "Wrong paramters. Usage: ./setup.sh <dataset-name> <AWS_ACCESS_KEY_ID> <AWS_SECRET_ACCESS_KEY>"
     exit
 fi
-FREE_PART=("$(comm -3 <(lsblk | grep "xvd\|nvme" | cut -d' ' -f1 | sed 's/[^a-z]*//g' | uniq) \
-                      <(mount | grep ^/dev | cut -d' ' -f1 | cut -d'/' -f3 | sed 's/[0-9]//g'))")
+FREE_PART=("$(comm -3 <(lsblk | grep "xvd\|nvme" | cut -d' ' -f1 | sed 's/[^a-z0-9]*//g' | sort | uniq) \
+                      <(mount | grep ^/dev | cut -d' ' -f1 | cut -d'/' -f3 | awk '{print $0; print substr($0, 1, length($0)-1)}' | sort | uniq))")
 DISK="/dev/${FREE_PART[0]}"
 SETUP_DIR="$(dirname "$0")"
 PY_REQ_FILE="$(realpath $SETUP_DIR/../python/requirements.txt)"
@@ -26,7 +25,7 @@ if [ $? -eq 0 ]; then
     echo "AWS was set up correctly."
 else
     echo "AWS needs to be set up."
-    aws configure
+    mkdir -p /home/ubuntu/.aws
     echo "[default]" > /home/ubuntu/.aws/credentials
     echo "aws_access_key_id = $2" >> /home/ubuntu/.aws/credentials
     echo "aws_secret_access_key = $3" >> ~/.aws/credentials
@@ -52,7 +51,7 @@ git clone $METRICS_REPO
 git clone $SCRIPTS_REPO
 
 # Install packages
-sudo apt-get install -y gcc python3 python3-pip pkg-config libssl-dev
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y gcc python3 python3-pip pkg-config libssl-dev
 echo "export EDITOR=vim" >> ~/.bashrc
 
 # Install Rust
