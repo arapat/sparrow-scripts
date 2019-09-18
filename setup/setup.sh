@@ -6,11 +6,14 @@ export TMSN_BRANCH="master"
 export METRICS_REPO="https://github.com/arapat/metricslib.git"
 export SCRIPTS_REPO="https://github.com/arapat/sparrow-scripts.git"
 
-if [ "$#" -ne 2 ]; then
-    echo "Wrong paramters. Usage: ./setup.sh <ssd-device-path> <dataset-name>"
+if [ "$#" -ne 1 ]; then
+    echo "Wrong paramters. Usage: ./setup.sh <dataset-name> <AWS_ACCESS_KEY_ID> \
+          <AWS_SECRET_ACCESS_KEY>"
     exit
 fi
-export DISK=$1
+FREE_PART=("$(comm -3 <(lsblk | grep "xvd\|nvme" | cut -d' ' -f1 | sed 's/[^a-z]*//g' | uniq) \
+                      <(mount | grep ^/dev | cut -d' ' -f1 | cut -d'/' -f3 | sed 's/[0-9]//g'))")
+DISK="/dev/${FREE_PART[0]}"
 SETUP_DIR="$(dirname "$0")"
 PY_REQ_FILE="$(realpath $SETUP_DIR/../python/requirements.txt)"
 
@@ -24,6 +27,9 @@ if [ $? -eq 0 ]; then
 else
     echo "AWS needs to be set up."
     aws configure
+    echo "[default]" > /home/ubuntu/.aws/credentials
+    echo "aws_access_key_id = $2" >> /home/ubuntu/.aws/credentials
+    echo "aws_secret_access_key = $3" >> ~/.aws/credentials
 fi
 
 
@@ -50,7 +56,7 @@ sudo apt-get install -y gcc python3 python3-pip pkg-config libssl-dev
 echo "export EDITOR=vim" >> ~/.bashrc
 
 # Install Rust
-$SETUP_DIR/download-data.sh $2 > /dev/null 2> /dev/null &
+$SETUP_DIR/download-data.sh $1 > /dev/null 2> /dev/null &
 curl https://sh.rustup.rs -sSf > rustup.sh
 bash rustup.sh -y
 
