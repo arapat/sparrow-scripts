@@ -8,8 +8,8 @@ PREDICTION_LOG="./testing.log"
 export RUST_LOG=sparrow=DEBUG,tmsn=DEBUG
 export RUST_BACKTRACE=1
 
-if [ "$#" -ne 1 ]; then
-    echo "Wrong paramters. Usage: ./run-exp.sh <training-config-file>"
+if [ "$#" -ne 2 ]; then
+    echo "Wrong paramters. Usage: ./run-exp.sh <training-config-file> <y|n>"
     exit
 fi
 CONFIG_FILE="$1"
@@ -23,14 +23,22 @@ if [[ ! -f $RUN_METRICS ]]; then
     exit
 fi
 
-echo "Should I run training? (y/n)"
-read proceed
+if [ "$2" != "y" ]; then
+    echo "Should I run training? (y/n)"
+    read proceed
+else
+    proceed="y"
+fi
 if [ "$proceed" != "y" ]; then
     echo "Training is skipped."
 else
     if [[ -d models ]]; then
-        echo "./models exists. Should I remove it? (y/n)"
-        read proceed
+        if [ "$2" != "y" ]; then
+            echo "./models exists. Should I remove it? (y/n)"
+            read proceed
+        else
+            proceed="y"
+        fi
         if [ "$proceed" = "y" ]; then
             rm -rf ./models
             echo "./models Removed."
@@ -45,8 +53,12 @@ fi
 echo
 
 if [ -f ./models_table.txt ]; then
-    echo "./models_table.txt exists. Should I remove it? (y/n)"
-    read proceed
+    if [ "$2" != "y" ]; then
+        echo "./models_table.txt exists. Should I remove it? (y/n)"
+        read proceed
+    else
+        proceed="y"
+    fi
     if [ "$proceed" = "y" ]; then
         rm -f all_models_table.txt models_table.txt
         echo "./models_table.txt Removed."
