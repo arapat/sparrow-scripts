@@ -4,6 +4,7 @@ if [ "$#" -ne 1 ]; then
 fi
 
 mapfile -t servers < servers.txt
+kill -9 $(ps aux | grep ubuntu |  awk '{print $2}')
 
 sampler=${servers[0]}
 scanners=("${servers[@]:1}")
@@ -41,8 +42,18 @@ done
 
 wait
 
+echo "Kill existing trainings"
+KILL_COMMAND="killall -9 sparrow"
+$SSH_COMMAND$sampler "$KILL_COMMAND" &
+for addr in "${scanners[@]}"
+do
+    $SSH_COMMAND$addr "$KILL_COMMAND" &
+done
+
+wait
+
 echo "Start training"
-RUN_COMMAND="killall -9 sparrow; cd /mnt; ./sparrow-scripts/experiments/run-exp.sh ./sparrow/examples/config_splice.yaml y"
+RUN_COMMAND="cd /mnt; ./sparrow-scripts/experiments/run-exp.sh ./sparrow/examples/config_splice.yaml y"
 $SSH_COMMAND$sampler "$RUN_COMMAND" &
 for addr in "${scanners[@]}"
 do
