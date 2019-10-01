@@ -16,6 +16,7 @@ scanners_list="["$(echo $scanners_list | sed -e "s/, //")"]"
 
 SSH_COMMAND="ssh -o StrictHostKeyChecking=no -i $1 ubuntu@"
 SED_COMMAND="
+    cd /mnt/sparrow-scripts; git reset --hard; git pull; \
     cd /mnt/sparrow; git reset --hard; \
     sed -i 's/num_iterations: 10$/num_iterations: 3000/' /mnt/sparrow/examples/config_splice.yaml; \
     sed -i 's/num_trees: 20$/num_trees: 500/' /mnt/sparrow/examples/config_splice.yaml; \
