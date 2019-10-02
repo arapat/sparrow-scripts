@@ -13,6 +13,7 @@ if [ "$#" -ne 2 ]; then
     exit
 fi
 CONFIG_FILE="$1"
+MACHINE_NAME=$(grep local_name $CONFIG_FILE | sed 's/local_name: //')
 
 if [[ ! -f $RUN_SPARROW ]]; then
     echo "sparrow does not exist. Terminated."
@@ -48,7 +49,7 @@ else
     mkdir -p models
     echo "Training the model. Logs are being written to $LOG_FILE."
     $RUN_SPARROW train $CONFIG_FILE 2> $LOG_FILE
-    echo "Training done!"
+    echo "$MACHINE_NAME: Training done!"
 fi
 echo
 
@@ -78,5 +79,5 @@ if grep -q "sampler_scanner: sampler" $CONFIG_FILE; then
     fi
 fi
 
-echo "All done."
+echo "$MACHINE_NAME: All done."
 
