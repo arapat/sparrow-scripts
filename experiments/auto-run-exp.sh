@@ -19,11 +19,14 @@ SSH_COMMAND="ssh -o StrictHostKeyChecking=no -i $1 ubuntu@"
 SED_COMMAND="
     cd /mnt/sparrow-scripts; git reset --hard; git pull; \
     cd /mnt/sparrow; git reset --hard; git pull; \
-    sed -i 's/num_iterations: 10$/num_iterations: 3000/' /mnt/sparrow/examples/config_splice.yaml; \
-    sed -i 's/num_trees: 20$/num_trees: 500/' /mnt/sparrow/examples/config_splice.yaml; \
+    source ~/.cargo/env; cargo build --release; \
+    sed -i 's/num_iterations: 10$/num_iterations: 100/' /mnt/sparrow/examples/config_splice.yaml; \
+    sed -i 's/num_trees: 20$/num_trees: 20/' /mnt/sparrow/examples/config_splice.yaml; \
     sed -i 's/max_depth: 2$/max_depth: 2/' /mnt/sparrow/examples/config_splice.yaml; \
     sed -i 's/five-scanner$/five-scanner/' /mnt/sparrow/examples/config_splice.yaml; \
-    sed -i 's/resume_training: false$/resume_training: true/' /mnt/sparrow/examples/config_splice.yaml;"
+    sed -i 's/resume_training: false$/resume_training: false/' /mnt/sparrow/examples/config_splice.yaml;"
+# sed -i 's/num_iterations: 10$/num_iterations: 2000/' /mnt/sparrow/examples/config_splice.yaml; \
+# sed -i 's/num_trees: 20$/num_trees: 400/' /mnt/sparrow/examples/config_splice.yaml; \
 
 echo "Set up config splice"
 $SSH_COMMAND$sampler "$SED_COMMAND \
