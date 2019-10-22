@@ -1,5 +1,5 @@
-if [ "$#" -ne 1 ]; then
-    echo "Wrong paramters. Usage: ./auto-run-exp.sh <identity_file>"
+if [ "$#" -ne 2 ]; then
+    echo "Wrong paramters. Usage: ./auto-run-exp.sh <identity_file> <y|n for continue training>"
     exit
 fi
 
@@ -25,8 +25,13 @@ SED_COMMAND="
     sed -i 's/max_depth: 2$/max_depth: 2/' /mnt/sparrow/examples/config_splice.yaml; \
     sed -i 's/five-scanner$/five-scanner/' /mnt/sparrow/examples/config_splice.yaml; \
     sed -i 's/resume_training: false$/resume_training: false/' /mnt/sparrow/examples/config_splice.yaml;"
-# sed -i 's/num_iterations: 10$/num_iterations: 2000/' /mnt/sparrow/examples/config_splice.yaml; \
-# sed -i 's/num_trees: 20$/num_trees: 400/' /mnt/sparrow/examples/config_splice.yaml; \
+if [ "$2" = "y" ]; then
+    SED_COMMAND="
+        $SED_COMMAND \
+        sed -i 's/num_iterations: 100$/num_iterations: 2000/' /mnt/sparrow/examples/config_splice.yaml; \
+        sed -i 's/num_trees: 20$/num_trees: 400/' /mnt/sparrow/examples/config_splice.yaml; \
+        sed -i 's/resume_training: false$/resume_training: true/' /mnt/sparrow/examples/config_splice.yaml;"
+fi
 
 echo "Set up config splice"
 $SSH_COMMAND$sampler "$SED_COMMAND \

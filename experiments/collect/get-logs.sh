@@ -4,11 +4,11 @@ if [ "$#" -ne 3 ]; then
     exit
 fi
 
+mapfile -t servers < servers.txt
 export CREDENTIAL_PATH=$1
 mkdir -p $2
 cd $2
 
-mapfile -t servers < servers.txt
 SAMPLER=${servers[0]}
 SCANNERS=("${servers[@]:1}")
 
