@@ -1,10 +1,3 @@
-export SPARROW_REPO="https://github.com/arapat/sparrow.git"
-export SPARROW_BRANCH="tmsn-dt"
-export S3_BUCKET="tmsn-data"
-export TMSN_REPO="https://github.com/arapat/tmsn.git"
-export TMSN_BRANCH="master"
-export METRICS_REPO="https://github.com/arapat/metricslib.git"
-export SCRIPTS_REPO="https://github.com/arapat/sparrow-scripts.git"
 
 if [ "$#" -ne 3 ]; then
     echo "Wrong paramters. Usage: ./setup.sh <dataset-name> <AWS_ACCESS_KEY_ID> <AWS_SECRET_ACCESS_KEY>"

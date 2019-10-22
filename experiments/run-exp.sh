@@ -13,6 +13,7 @@ if [ "$#" -ne 2 ]; then
     exit
 fi
 CONFIG_FILE="$1"
+MACHINE_NAME=$(grep local_name $CONFIG_FILE | sed 's/local_name: //')
 
 if [[ ! -f $RUN_SPARROW ]]; then
     echo "sparrow does not exist. Terminated."
@@ -48,34 +49,35 @@ else
     mkdir -p models
     echo "Training the model. Logs are being written to $LOG_FILE."
     $RUN_SPARROW train $CONFIG_FILE 2> $LOG_FILE
-    echo "Training done!"
+    echo "$MACHINE_NAME: Training done!"
 fi
 echo
 
-if [ -f ./models_table.txt ]; then
-    if [ "$2" != "y" ]; then
-        echo "./models_table.txt exists. Should I remove it? (y/n)"
-        read proceed
-    else
-        proceed="y"
+if grep -q "sampler_scanner: sampler" $CONFIG_FILE; then
+    if [ -f ./models_table.txt ]; then
+        if [ "$2" != "y" ]; then
+            echo "./models_table.txt exists. Should I remove it? (y/n)"
+            read proceed
+        else
+            proceed="y"
+        fi
+        if [ "$proceed" = "y" ]; then
+            rm -f all_models_table.txt models_table.txt
+            echo "./models_table.txt Removed."
+        fi
     fi
-    if [ "$proceed" = "y" ]; then
-        rm -f all_models_table.txt models_table.txt
-        echo "./models_table.txt Removed."
+    for filename in $( ls -rt models/model_*-v*.json ); do
+        echo $filename >> all_models_table.txt
+    done
+    awk 'NR == 1 || NR % 20 == 0' all_models_table.txt > models_table.txt
+
+    echo "Evaluating the models on the testing data..."
+    if ! $RUN_SPARROW test $CONFIG_FILE 2> $PREDICTION_LOG; then
+        echo "Evaluation failed."
+        cat $PREDICTION_LOG
+        exit
     fi
 fi
-for filename in $( ls -rt models/model_*-v*.json ); do
-    echo $filename >> all_models_table.txt
-done
-awk 'NR == 1 || NR % 20 == 0' all_models_table.txt > models_table.txt
 
-
-echo "Evaluating the models on the testing data..."
-if ! $RUN_SPARROW test $CONFIG_FILE 2> $PREDICTION_LOG; then
-    echo "Evaluation failed."
-    cat $PREDICTION_LOG
-    exit
-fi
-
-echo "All done."
+echo "$MACHINE_NAME: All done."
 
