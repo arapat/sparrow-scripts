@@ -5,4 +5,5 @@ archive/
 *.libsvm_bin
 .ipynb_checkpoints
 servers.txt
+servers-*.txt
 logs
