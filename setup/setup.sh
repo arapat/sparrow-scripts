@@ -48,11 +48,13 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -y gcc python3 python3-pip p
 echo "export EDITOR=vim" >> ~/.bashrc
 
 # Install Rust
+echo "Start downloading data..."
 $SETUP_DIR/download-data.sh $1 > /dev/null 2> /dev/null &
 curl https://sh.rustup.rs -sSf > rustup.sh
 bash rustup.sh -y
 
 # Compile Sparrow
+echo "Start compiling Sparrow..."
 cd tmsn
 git checkout $TMSN_BRANCH
 cd /mnt/sparrow

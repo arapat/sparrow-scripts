@@ -4,7 +4,7 @@ if [ "$#" -ne 1 ]; then
 fi
 
 mapfile -t servers < servers.txt
-kill -9 $(ps aux | grep ubuntu |  awk '{print $2}')
+kill -9 $(ps aux | grep StrictHostKeyChecking |  awk '{print $2}')
 
 sampler=${servers[0]}
 scanners=("${servers[@]:1}")
