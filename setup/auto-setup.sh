@@ -14,7 +14,7 @@ if [ "$#" -ne 4 ]; then
 fi
 
 SETUP_DIR="/home/ubuntu/sparrow-scripts/setup"
-SSH_COMMAND="ssh -o StrictHostKeyChecking=no -i $1 $ENV ubuntu@"
+SSH_COMMAND="ssh -o StrictHostKeyChecking=no -i $1 ubuntu@"
 GIT_COMMAND="git clone https://github.com/arapat/sparrow-scripts.git"
 mapfile -t servers < servers.txt
 
@@ -28,11 +28,11 @@ done
 scanners_list="["$(echo $scanners_list | sed -e "s/, //")"]"
 
 echo "Setup" $sampler
-$SSH_COMMAND$sampler "$GIT_COMMAND; $SETUP_DIR/setup.sh $2 $3 $4 > /dev/null 2> /dev/null" &
+$SSH_COMMAND$sampler "$GIT_COMMAND; $ENV $SETUP_DIR/setup.sh $2 $3 $4 > /dev/null 2> /dev/null" &
 for addr in "${scanners[@]}"
 do
     echo "Setup the scanner" $addr
-    $SSH_COMMAND$addr "$GIT_COMMAND; $SETUP_DIR/setup.sh nodata $3 $4 > /dev/null 2> /dev/null" &
+    $SSH_COMMAND$addr "$GIT_COMMAND; $ENV $SETUP_DIR/setup.sh nodata $3 $4 > /dev/null 2> /dev/null" &
 done
 
 echo "Waiting for the setup scripts to be finished"
