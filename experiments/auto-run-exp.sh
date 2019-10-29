@@ -30,6 +30,7 @@ if [ "$2" = "y" ]; then
         $SED_COMMAND \
         sed -i 's/num_iterations: 100$/num_iterations: 2000/' /mnt/sparrow/examples/config_splice.yaml; \
         sed -i 's/num_trees: 20$/num_trees: 400/' /mnt/sparrow/examples/config_splice.yaml; \
+        sed -i 's/default_gamma: 0.25$/default_gamma: 0.10/' /mnt/sparrow/examples/config_splice.yaml; \
         sed -i 's/resume_training: false$/resume_training: true/' /mnt/sparrow/examples/config_splice.yaml;"
 fi
 
