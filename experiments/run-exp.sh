@@ -69,7 +69,7 @@ if grep -q "sampler_scanner: sampler" $CONFIG_FILE; then
     for filename in $( ls -rt models/model_*-v*.json ); do
         echo $filename >> all_models_table.txt
     done
-    awk 'NR == 1 || NR % 20 == 0' all_models_table.txt > models_table.txt
+    awk 'NR == 1 || NR % 10 == 0' all_models_table.txt > models_table.txt
 
     echo "Evaluating the models on the testing data..."
     if ! $RUN_SPARROW test $CONFIG_FILE 2> $PREDICTION_LOG; then
