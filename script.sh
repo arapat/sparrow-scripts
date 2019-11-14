@@ -1,7 +1,7 @@
-
-
 cd /mnt
 cd sparrow
 git reset --hard
-git checkout tmsn-stable
+git checkout sid
 git pull
+source /home/ubuntu/.cargo/env
+cargo build --release
