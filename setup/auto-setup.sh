@@ -1,5 +1,5 @@
 export SPARROW_REPO="https://github.com/arapat/sparrow.git"
-export SPARROW_BRANCH="sid"
+export SPARROW_BRANCH="grid"
 export S3_BUCKET="tmsn-data"
 export TMSN_REPO="https://github.com/arapat/tmsn.git"
 export TMSN_BRANCH="master"
@@ -16,7 +16,9 @@ fi
 SETUP_DIR="/home/ubuntu/sparrow-scripts/setup"
 SSH_COMMAND="ssh -o StrictHostKeyChecking=no -i $1 ubuntu@"
 GIT_COMMAND="git clone https://github.com/arapat/sparrow-scripts.git"
-mapfile -t servers < servers.txt
+oifs=$IFS # save a copy of the input field separator character list
+IFS=$'\n' servers=( $(< servers.txt) )
+IFS=$oifs
 
 sampler=${servers[0]}
 scanners=("${servers[@]:1}")
