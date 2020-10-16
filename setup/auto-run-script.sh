@@ -14,7 +14,7 @@ sampler=${servers[0]}
 scanners=("${servers[@]:1}")
 
 echo "Setup" $sampler
-$SCP_COMMAND$sampler:. &
+scp -o StrictHostKeyChecking=no -i $1 script.sh ubuntu@$sampler:script.sh &
 for addr in "${scanners[@]}"
 do
     echo "Setup the scanner" $addr
