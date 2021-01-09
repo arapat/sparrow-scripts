@@ -21,7 +21,7 @@ where the first line is the IP address of the head node, and the following lines
 The script read the server addresses from the `servers.txt` file, install `Sparrow` on all instances, and download the dataset to the head node.
 The `<dataset_name>` supports two datasets, `splice` and `bathymetry`. The script downloads data from our S3 bucket.
 
-4. Set up the right config file
+4. Set up the right config file: 
 The purpose of this step is to put [a config file](https://github.com/arapat/sparrow-experiments/tree/master/configs) on all instances, and (optionally) make changes if needed (e.g. change the number of trees). Some example scripts are given at `setup/1-build-script.sh` and `setup-1b-update-example.sh`. 
 ```bash
 cd setup/
