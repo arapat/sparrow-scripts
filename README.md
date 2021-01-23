@@ -45,6 +45,7 @@ cp 1-build-script.sh script.sh
 
 * `<ec2_identity_file.pem>`: the path to [your EC2 key pair](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html)
 
+Read [configuration.md](https://github.com/arapat/sparrow/blob/master/configuration.md) for how to set `config.yaml` file.
 
 2. Start experiment
 
