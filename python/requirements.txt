@@ -34,7 +34,7 @@ numpy==1.15.4
 oauthlib==2.0.6
 olefile==0.45.1
 PAM==0.4.2
-Pillow==6.2.0
+Pillow==9.0.0
 pyasn1==0.4.2
 pyasn1-modules==0.2.1
 pycrypto==2.6.1
